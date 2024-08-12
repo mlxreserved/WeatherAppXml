@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">WeatherAppXml</string>
+    <string name="search_hint">Enter city</string>
+    <string name="search_button">Search</string>
+    <string name="weather_image">Weather Image</string>
+    <string name="settings">Settings</string>
+    <string name="day_temperature">Day %1$d°</string>
+    <string name="night_temperature">Night %1$d°</string>
+    <string name="three_day_forecast">3-day forecast</string>
+    <string name="today">Today</string>
+    <string name="morning">Morning</string>
+    <string name="day">Day</string>
+    <string name="evening">Evening</string>
+    <string name="night">Night</string>
+</resources>
