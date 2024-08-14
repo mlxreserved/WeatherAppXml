@@ -1,40 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    android:id="@+id/refreshLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        app:menu="@menu/main_menu"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/city_name"
+        android:layout_height="match_parent">
+
+
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            app:menu="@menu/main_menu"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="28sp"
-            android:textAlignment="center"/>
-    </androidx.appcompat.widget.Toolbar>
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/city_name"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textAlignment="center"/>
+        </androidx.appcompat.widget.Toolbar>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/weather_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/loadingbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:indeterminate="true"
+            android:layout_gravity="center" />
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:visibility="gone"/>
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/weather_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+    </LinearLayout>
 
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/loadingbar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:indeterminate="true"
-        android:layout_gravity="center" />
-
-</LinearLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 <!--<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

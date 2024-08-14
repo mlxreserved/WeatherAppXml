@@ -12,4 +12,8 @@
     <string name="day">Day</string>
     <string name="evening">Evening</string>
     <string name="night">Night</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="theme_auto">Auto</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
 </resources>

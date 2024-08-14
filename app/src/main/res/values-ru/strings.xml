@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Погодное приложение</string>
+    <string name="search_hint">Введите название города</string>
+    <string name="search_button">Поиск</string>
+    <string name="weather_image">Погодная картинка</string>
+    <string name="settings">Настройки</string>
+    <string name="day_temperature">День %1$d°</string>
+    <string name="night_temperature">Ночь %1$d°</string>
+    <string name="three_day_forecast">Прогноз на 3 дня</string>
+    <string name="today">Сегодня</string>
+    <string name="morning">Утро</string>
+    <string name="day">День</string>
+    <string name="evening">Вечер</string>
+    <string name="night">Ночь</string>
+    <string name="tomorrow">Завтра</string>
+    <string name="theme_auto">Авто</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+</resources>

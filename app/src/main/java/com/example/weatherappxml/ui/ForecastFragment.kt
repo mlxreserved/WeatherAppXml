@@ -63,6 +63,7 @@ class ForecastFragment: Fragment() {
         activity.setSupportActionBar(toolbar)
         activity.supportActionBar?.setTitle("")
         activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        activity.supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24)
 
 
         return view

@@ -63,13 +63,13 @@ class WeatherAdapter(private val items: List<ListItem>, private val secondRecIte
     }
 
     inner class WeatherHolder(view: View): RecyclerView.ViewHolder(view){
-        private val weatherTempTextView: TextView = itemView.findViewById(R.id.temperature)!!
-        private val weatherCityTextView: TextView = itemView.findViewById(R.id.city)!!
-        private val weatherImage: ImageView = itemView.findViewById(R.id.weather_image)!!
+        private val weatherTempTextView: TextView = itemView.findViewById(R.id.temperature) as TextView
+        private val weatherForecastTextView: TextView = itemView.findViewById(R.id.weather_forecast) as TextView
+        private val weatherImage: ImageView = itemView.findViewById(R.id.weather_image) as ImageView
 
         fun bind(item: ListItem.WeatherItem) {
             weatherTempTextView.text = "${item.currentWeather.current.tempCelsius.roundToInt()}°"
-            weatherCityTextView.text = item.currentWeather.location.name
+            weatherForecastTextView.text = item.currentWeather.current.condition.text
             weatherImage.load("https://${item.currentWeather.current.condition.icon}")
         }
     }

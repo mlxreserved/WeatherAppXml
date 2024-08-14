@@ -56,7 +56,11 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.8.2")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 
+
+    //Retrofit
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
@@ -67,6 +71,13 @@ dependencies {
     kapt("com.google.dagger:dagger-compiler:2.51.1")
 
 
+
+    //Room
+    implementation("androidx.room:room-runtime:2.4.3")
+    kapt("androidx.room:room-compiler:2.4.3")
+    implementation("androidx.room:room-ktx:2.4.3")
+
+    //Coil
     implementation("io.coil-kt:coil:2.7.0")
 
     implementation("com.github.pemistahl:lingua:1.2.2")

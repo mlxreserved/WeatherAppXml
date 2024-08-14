@@ -33,6 +33,7 @@ import com.example.weatherappxml.R
 import com.example.weatherappxml.data.api.model.Coordinate
 import com.example.weatherappxml.utils.WeatherResult
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class SearchFragment: Fragment() {
@@ -45,14 +46,17 @@ class SearchFragment: Fragment() {
     private lateinit var clearButton: Button
     private lateinit var weatherState: StateFlow<WeatherState>
     private lateinit var searchState: StateFlow<SearchState>
+    private lateinit var databaseState: StateFlow<DatabaseState>
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
     private lateinit var recyclerView: RecyclerView
     private var callbacks: Callbacks? = null
-    private var adapter: SearchAdapter? = null
+    private var adapter: SearchAdapter? = SearchAdapter(emptyList())
 
     private val weatherViewModel: WeatherViewModel by activityViewModels {
         WeatherViewModel.Factory
     }
+
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -63,6 +67,7 @@ class SearchFragment: Fragment() {
         super.onCreate(savedInstanceState)
         weatherState = weatherViewModel.weatherState
         searchState = weatherViewModel.searchState
+        databaseState = weatherViewModel.databaseState
     }
 
     override fun onCreateView(
@@ -84,6 +89,7 @@ class SearchFragment: Fragment() {
 
         activity.setSupportActionBar(toolbar)
         activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        activity.supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24)
 
 
         clearButton.setOnClickListener {
@@ -118,6 +124,7 @@ class SearchFragment: Fragment() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 if (menuItem.itemId == android.R.id.home) {
+                    weatherViewModel.closeSearchScreen()
                     Log.e("Home", activity?.supportFragmentManager?.backStackEntryCount.toString())
                     callbacks?.onBackPressedSearch()
                     return true
@@ -127,11 +134,22 @@ class SearchFragment: Fragment() {
             }
         }, viewLifecycleOwner)
 
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
                 searchState.collect{ res ->
-                    if(res.coordinateList.isNotEmpty()){
-                        updateUi()
+                    if(res.textFieldCity.isNotBlank()){
+                        updateUiSearched()
+                    }
+                }
+
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                databaseState.collect{
+                    if(searchState.value.textFieldCity.isBlank()){
+                        updateUiEmpty()
                     }
                 }
             }
@@ -157,6 +175,7 @@ class SearchFragment: Fragment() {
                     clearButton.visibility = View.VISIBLE
                 } else {
                     clearButton.visibility = View.GONE
+                    updateUiEmpty()
                 }
             }
 
@@ -168,11 +187,21 @@ class SearchFragment: Fragment() {
     }
 
 
-    private fun updateUi(){
+    private fun updateUiEmpty(){
+        val listCityName = databaseState.value.storyOfSearch.map { it.name }
+        adapter = SearchAdapter(listCityName)
+        recyclerView.adapter = adapter
+        adapter?.onItemClick = { item ->
+            weatherViewModel.getWeather(item, false)
+            callbacks?.onBackPressedSearch()
+        }
+    }
+
+    private fun updateUiSearched(){
         adapter = SearchAdapter(searchState.value.coordinateList)
         recyclerView.adapter = adapter
         adapter?.onItemClick = { item ->
-            weatherViewModel.getWeather(item)
+            weatherViewModel.getWeather(item, false)
             callbacks?.onBackPressedSearch()
             Log.e("TAG", item)
         }

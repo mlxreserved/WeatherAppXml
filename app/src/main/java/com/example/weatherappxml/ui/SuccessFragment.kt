@@ -11,7 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -22,8 +24,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import coil.transform.CircleCropTransformation
 import com.example.weatherappxml.R
+import com.example.weatherappxml.data.api.model.ThemeModel
+import com.example.weatherappxml.data.api.model.Weather
+import com.example.weatherappxml.data.repository.ThemeType
+import com.example.weatherappxml.di.ModelProvider
 import com.example.weatherappxml.utils.WeatherResult
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +41,7 @@ class SuccessFragment: Fragment() {
      interface Callbacks{
          fun onSearchSelected()
          fun onForecastSelected()
+         fun onSettingsSelected()
      }
 
      private var callbacks: Callbacks? = null
@@ -44,10 +52,16 @@ class SuccessFragment: Fragment() {
      private lateinit var searchState: StateFlow<SearchState>
      private lateinit var weatherRecyclerView: RecyclerView
      private lateinit var toolbar: androidx.appcompat.widget.Toolbar
+     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+     private lateinit var image: ImageView
      private var adapter: WeatherAdapter? = null
 
      private val weatherViewModel: WeatherViewModel by activityViewModels {
          WeatherViewModel.Factory
+     }
+
+     private val themeModel: ThemeModel by activityViewModels{
+         ModelProvider.Factory
      }
 
      override fun onAttach(context: Context) {
@@ -82,6 +96,8 @@ class SuccessFragment: Fragment() {
          loading = view.findViewById(R.id.loadingbar)
          cityNameTextView = view.findViewById(R.id.city_name) as TextView
          weatherRecyclerView = view.findViewById(R.id.weather_recycler_view) as RecyclerView
+         swipeRefreshLayout = view.findViewById(R.id.refreshLayout) as SwipeRefreshLayout
+         image = view.findViewById(R.id.image) as ImageView
 
          weatherRecyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -105,7 +121,7 @@ class SuccessFragment: Fragment() {
                     return true
                 }
                 if(menuItem.itemId == android.R.id.home){
-                    Log.e("Home", activity?.supportFragmentManager?.backStackEntryCount.toString())
+                    callbacks?.onSettingsSelected()
                     return true
                 }
 
@@ -114,6 +130,30 @@ class SuccessFragment: Fragment() {
         }, viewLifecycleOwner)
 
 
+        swipeRefreshLayout.setOnRefreshListener {
+            val city = when(weatherState.value.result){
+                is WeatherResult.Success -> (weatherState.value.result as WeatherResult.Success).data.location.name
+                is WeatherResult.Error, WeatherResult.Loading -> ""
+            }
+            weatherViewModel.getWeather(city, true)
+
+            swipeRefreshLayout.isRefreshing = false
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                themeModel.isDarkTheme.collect { theme ->
+                    val isDarkTheme = when (theme) {
+                        ThemeType.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                        ThemeType.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+                        ThemeType.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                    }
+
+                    AppCompatDelegate.setDefaultNightMode(isDarkTheme)
+                }
+            }
+
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
@@ -126,7 +166,7 @@ class SuccessFragment: Fragment() {
                             updateUiLoading()
                         }
                         is WeatherResult.Error -> {
-
+                            updateUiError()
                         }
                     }
                 }
@@ -141,13 +181,15 @@ class SuccessFragment: Fragment() {
          list.add(ListItem.StringItem(activity?.getString(R.string.today) ?: ""))
          for(i in weatherState.value.hourList){
              if(i.time.substring(i.time.length-5)  == "00:00"){
-                 list.add(ListItem.StringItem("Tomorrow"))
+                 list.add(ListItem.StringItem(activity?.getString(R.string.tomorrow) ?: ""))
              }
              list.add(ListItem.HourItem(i))
          }
          /*val list: List<ListItem> = listOf(ListItem.WeatherItem(res.data)) + listOf(ListItem.StringItem(activity?.getString(R.string.three_day_forecast) ?: "")) + listOf(ListItem.DayItem(res.data.forecast.forecastday[0])) +
                  listOf(ListItem.StringItem(activity?.getString(R.string.today) ?: "")) + weatherState.value.hourList.map{ListItem.HourItem(it)}*/
          loading.visibility = View.GONE
+         image.visibility = View.GONE
+         weatherRecyclerView.visibility = View.VISIBLE
          cityNameTextView.text = res.data.location.name
          adapter = WeatherAdapter(list, res.data.forecast.forecastday.map { ListItem.DayItem(it) })
          weatherRecyclerView.adapter = adapter
@@ -159,9 +201,16 @@ class SuccessFragment: Fragment() {
      }
 
     fun updateUiLoading(){
+        weatherRecyclerView.visibility = View.GONE
+        image.visibility = View.GONE
         loading.visibility = View.VISIBLE
     }
 
+    fun updateUiError(){
+        weatherRecyclerView.visibility = View.GONE
+        loading.visibility = View.GONE
+        image.visibility = View.VISIBLE
+    }
      override fun onDetach() {
          super.onDetach()
          callbacks = null

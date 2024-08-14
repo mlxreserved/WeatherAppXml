@@ -1,6 +1,8 @@
 package com.example.weatherappxml.ui
 
+import android.provider.ContactsContract.Data
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -10,18 +12,26 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.weatherappxml.data.api.model.Coordinate
 import com.example.weatherappxml.data.api.model.Hour
 import com.example.weatherappxml.data.api.model.Weather
+import com.example.weatherappxml.data.database.City
+import com.example.weatherappxml.data.repository.CitiesRepository
 import com.example.weatherappxml.data.repository.CoordinateRepository
+import com.example.weatherappxml.data.repository.OfflineCitiesRepository
 import com.example.weatherappxml.data.repository.WeatherRepository
 import com.example.weatherappxml.di.MainApp
 import com.example.weatherappxml.utils.WeatherResult
 import com.github.pemistahl.lingua.api.Language
 import com.github.pemistahl.lingua.api.LanguageDetector
 import com.github.pemistahl.lingua.api.LanguageDetectorBuilder
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -48,9 +58,14 @@ data class WeatherState(
     val currentItem: Int = -1
 )
 
+data class DatabaseState(
+    val storyOfSearch: List<City> = listOf(),
+)
+
 class WeatherViewModel(
     private val weatherRepository: WeatherRepository,
-    private val coordinateRepository: CoordinateRepository
+    private val coordinateRepository: CoordinateRepository,
+    private val citiesRepository: CitiesRepository
 ): ViewModel() {
 
 
@@ -58,13 +73,21 @@ class WeatherViewModel(
     val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
 
 
-    var searchText = ""
-
     private val _weatherState = MutableStateFlow(WeatherState())
     val weatherState: StateFlow<WeatherState> = _weatherState.asStateFlow()
 
+
+    val databaseState: StateFlow<DatabaseState> = citiesRepository.getAllCities().map { DatabaseState(it) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS ),
+            initialValue = DatabaseState()
+        )
+
+
+
     init{
-        getWeather("Москва")
+        getWeather("Москва", isReloading = true)
     }
 
     /*fun getWeather(city: String){
@@ -80,7 +103,7 @@ class WeatherViewModel(
         }
     }*/
 
-    fun getWeather(city: String, /*isReloading: Boolean*/){
+    fun getWeather(city: String, isReloading: Boolean){
         if (city.isNotBlank()) {
             getLanguage(city)
             viewModelScope.launch {
@@ -90,7 +113,7 @@ class WeatherViewModel(
                     val weather =
                         weatherRepository.getWeather(coordinateOfCity, _weatherState.value.lang)
                     weather.location.name = nameCity
-                    /*if(!isReloading) {
+                    if(!isReloading) {
                         saveCity(
                             City(
                                 name = nameFullCity,
@@ -99,7 +122,6 @@ class WeatherViewModel(
                             )
                         )
                     }
-                     */
                     addHourToHourList(weather)
                     closeSearchScreen()
                     WeatherResult.Success(weather)
@@ -199,6 +221,15 @@ class WeatherViewModel(
         return listOfCoordinates
     }
 
+    private fun saveCity(city: City){
+        viewModelScope.launch(Dispatchers.IO) {
+            if(databaseState.value.storyOfSearch.size==10){
+                citiesRepository.delete()
+            }
+            citiesRepository.insert(city)
+        }
+    }
+
     fun setCurrentItem(item: Int){
         _weatherState.update { it.copy(currentItem = item) }
     }
@@ -228,7 +259,6 @@ class WeatherViewModel(
 
         val formatedDate = dateFormatter.format(SimpleDateFormat("yyyy-MM-dd").parse(date))
 
-        /*LocalDate.parse(date,formatter)*/
         return formatedDate
 
     }
@@ -242,14 +272,18 @@ class WeatherViewModel(
     }
 
     companion object {
+        private const val TIMEOUT_MILLIS = 5_000L
+
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as MainApp)
                 val weatherRepository = application.appComponent.weatherRepository
                 val coordinateRepository = application.appComponent.coordinateRepository
+                val citiesRepository = application.databaseComponent.citiesRepository
                 WeatherViewModel(
                     weatherRepository = weatherRepository,
-                    coordinateRepository = coordinateRepository
+                    coordinateRepository = coordinateRepository,
+                    citiesRepository = citiesRepository
                 )
             }
         }
