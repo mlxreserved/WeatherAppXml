@@ -1,8 +1,7 @@
-package com.example.weatherappxml.ui
+package com.example.weatherappxml.ui.main
 
 import android.content.Context
 import android.os.Bundle
-import android.telecom.Call
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -15,9 +14,11 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.RecyclerView
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.example.weatherappxml.R
+import com.example.weatherappxml.ui.search.SearchFragment
 import com.example.weatherappxml.utils.WeatherResult
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -27,7 +28,7 @@ class ForecastFragment: Fragment() {
 
 
     private lateinit var toolbar: Toolbar
-    private var callbacks: SearchFragment.Callbacks? = null
+    private var controller: NavController? = null
     private lateinit var viewPager: ViewPager2
     private var adapter: ViewPagerAdapter? = null
     private lateinit var weatherState: StateFlow<WeatherState>
@@ -39,7 +40,7 @@ class ForecastFragment: Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callbacks = context as SearchFragment.Callbacks?
+        controller = findNavController()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,7 +81,7 @@ class ForecastFragment: Fragment() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 if(menuItem.itemId == android.R.id.home){
-                    callbacks?.onBackPressedSearch()
+                    controller?.navigateUp()
                     return true
                 }
                 return false
@@ -102,6 +103,6 @@ class ForecastFragment: Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        callbacks = null
+        controller = null
     }
 }

@@ -1,4 +1,4 @@
-package com.example.weatherappxml.ui
+package com.example.weatherappxml.ui.main
 
 import android.content.Context
 import android.os.Bundle
@@ -11,9 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.contentValuesOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -21,14 +21,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import coil.transform.CircleCropTransformation
 import com.example.weatherappxml.R
 import com.example.weatherappxml.data.api.model.ThemeModel
-import com.example.weatherappxml.data.api.model.Weather
 import com.example.weatherappxml.data.repository.ThemeType
 import com.example.weatherappxml.di.ModelProvider
 import com.example.weatherappxml.utils.WeatherResult
@@ -38,13 +37,7 @@ import kotlinx.coroutines.launch
 
 class SuccessFragment: Fragment() {
 
-     interface Callbacks{
-         fun onSearchSelected()
-         fun onForecastSelected()
-         fun onSettingsSelected()
-     }
 
-     private var callbacks: Callbacks? = null
 
      private lateinit var cityNameTextView: TextView
      private lateinit var loading: CircularProgressIndicator
@@ -54,6 +47,7 @@ class SuccessFragment: Fragment() {
      private lateinit var toolbar: androidx.appcompat.widget.Toolbar
      private lateinit var swipeRefreshLayout: SwipeRefreshLayout
      private lateinit var image: ImageView
+     private var controller: NavController? = null
      private var adapter: WeatherAdapter? = null
 
      private val weatherViewModel: WeatherViewModel by activityViewModels {
@@ -66,7 +60,7 @@ class SuccessFragment: Fragment() {
 
      override fun onAttach(context: Context) {
          super.onAttach(context)
-         callbacks = context as Callbacks?
+         controller = findNavController()
      }
 
      override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,6 +104,7 @@ class SuccessFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+
         menuHost.addMenuProvider(object: MenuProvider{
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.main_menu,menu)
@@ -117,11 +112,11 @@ class SuccessFragment: Fragment() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 if(menuItem.itemId == R.id.action_search){
-                    callbacks?.onSearchSelected()
+                    controller?.navigate(R.id.action_successFragment_to_searchFragment)
                     return true
                 }
                 if(menuItem.itemId == android.R.id.home){
-                    callbacks?.onSettingsSelected()
+                    controller?.navigate(R.id.action_successFragment_to_settingsFragment)
                     return true
                 }
 
@@ -195,7 +190,11 @@ class SuccessFragment: Fragment() {
          weatherRecyclerView.adapter = adapter
          adapter?.onItemClick = { it, index ->
              weatherViewModel.setCurrentItem(index)
-             callbacks?.onForecastSelected()
+
+             controller?.navigate(R.id.action_successFragment_to_forecastFragment)
+
+
+
              Log.e("Forecast", it.forecast.date)
          }
      }
@@ -213,6 +212,6 @@ class SuccessFragment: Fragment() {
     }
      override fun onDetach() {
          super.onDetach()
-         callbacks = null
+         controller = null
      }
 }

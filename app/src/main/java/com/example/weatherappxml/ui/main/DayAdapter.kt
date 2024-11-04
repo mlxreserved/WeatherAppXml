@@ -1,4 +1,4 @@
-package com.example.weatherappxml.ui
+package com.example.weatherappxml.ui.main
 
 import android.view.LayoutInflater
 import android.view.View
@@ -60,11 +60,11 @@ class DayAdapter(val items: List<ListItem.DayItem>): RecyclerView.Adapter<DayAda
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.list_item_day, parent, false))
     }
 
-    override fun onBindViewHolder(holder: DayAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(items[position])
     }
 

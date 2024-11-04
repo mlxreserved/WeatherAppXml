@@ -17,4 +17,19 @@
     <string name="theme_auto">Авто</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
+    <string name="login">E-mail</string>
+    <string name="password">Пароль</string>
+    <string name="login_button">Войти</string>
+    <string name="confirm_password">Подтвердите пароль</string>
+    <string name="registration_button">Зарегистрироваться</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="user">Привет %1$s!</string>
+    <string name="logout">Выйти</string>
+    <string name="error">Вы ввели неверные данные</string>
+    <string name="error_reg">Пароли не совпадают</string>
+    <string name="error_login">Необходимо ввести e-mail</string>
+    <string name="error_email">Это не e-mail</string>
+    <string name="error_pass">Необходимо ввести пароль</string>
+    <string name="error_pass_len">Пароль должен содержать больше 8 символов</string>
+    <string name="error_conf_pass">Необходимо ввести подтверждение пароля</string>
 </resources>

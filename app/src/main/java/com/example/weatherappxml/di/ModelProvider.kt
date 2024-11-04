@@ -10,12 +10,10 @@ import com.example.weatherappxml.data.api.model.ThemeModel
 object ModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            //Not yet implemented
             ThemeModel(appViewModelProvider().storeRepository)
         }
 
         initializer {
-            //Not yet implemented
             SettingsModel(appViewModelProvider().storeRepository)
         }
     }

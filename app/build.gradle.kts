@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     kotlin("plugin.serialization")
+    alias(libs.plugins.gms.google.services)
     id("kotlin-kapt")
 }
 
@@ -52,6 +53,7 @@ android {
 }
 
 dependencies {
+
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("androidx.fragment:fragment-ktx:1.8.2")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
@@ -82,6 +84,12 @@ dependencies {
 
     implementation("com.github.pemistahl:lingua:1.2.2")
 
+    //Navigation
+    implementation("androidx.navigation:navigation-fragment:2.8.1")
+    implementation("androidx.navigation:navigation-ui:2.8.1")
+
+    implementation(platform(libs.google.firebase.bom))
+    implementation(libs.google.firebase.auth)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

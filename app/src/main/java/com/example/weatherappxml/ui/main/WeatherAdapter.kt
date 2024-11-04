@@ -1,26 +1,18 @@
-package com.example.weatherappxml.ui
+package com.example.weatherappxml.ui.main
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.res.TypedArrayUtils.getText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.weatherappxml.R
-import com.example.weatherappxml.data.api.model.Current
-import com.example.weatherappxml.data.api.model.Forecast
 import com.example.weatherappxml.data.api.model.Forecastday
 import com.example.weatherappxml.data.api.model.Hour
 import com.example.weatherappxml.data.api.model.Weather
-import org.w3c.dom.Text
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
 
@@ -136,7 +128,7 @@ class WeatherAdapter(private val items: List<ListItem>, private val secondRecIte
             is ListItem.DayItem -> {
                 val childlayoutManager = LinearLayoutManager(
                     (holder as DayHolder).recyclerView.context, RecyclerView.HORIZONTAL, false)
-                childlayoutManager.initialPrefetchItemCount = 3
+                childlayoutManager.initialPrefetchItemCount = secondRecItems.size
 
                 holder.bind(childlayoutManager)
                 /*(holder as DayHolder).bind(item)*/

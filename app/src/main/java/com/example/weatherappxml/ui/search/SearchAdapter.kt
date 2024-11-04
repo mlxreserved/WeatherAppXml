@@ -1,13 +1,11 @@
-package com.example.weatherappxml.ui
+package com.example.weatherappxml.ui.search
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherappxml.R
-import com.example.weatherappxml.data.api.model.Coordinate
 
 class SearchAdapter(val items: List<String>): RecyclerView.Adapter<SearchAdapter.SearchHolder>() {
 

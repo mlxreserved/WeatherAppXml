@@ -1,15 +1,13 @@
-package com.example.weatherappxml.ui
+package com.example.weatherappxml.ui.main
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.weatherappxml.R
-import com.example.weatherappxml.data.api.model.Forecastday
 import com.example.weatherappxml.data.api.model.Hour
 import kotlin.math.roundToInt
 

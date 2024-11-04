@@ -1,18 +1,18 @@
-package com.example.weatherappxml.ui
+package com.example.weatherappxml.ui.settings
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import android.widget.Switch
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
@@ -20,20 +20,18 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import com.example.weatherappxml.R
 import com.example.weatherappxml.data.api.model.SettingsModel
-import com.example.weatherappxml.data.api.model.ThemeModel
 import com.example.weatherappxml.data.api.model.ThemeTypeState
 import com.example.weatherappxml.data.repository.ThemeType
 import com.example.weatherappxml.di.ModelProvider
-import com.example.weatherappxml.utils.WeatherResult
-import com.google.android.material.radiobutton.MaterialRadioButton
+import com.example.weatherappxml.ui.search.SearchFragment
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 class SettingsFragment: Fragment() {
 
@@ -41,8 +39,13 @@ class SettingsFragment: Fragment() {
     private lateinit var radioButtonGroup: RadioGroup
     private lateinit var light: RadioButton
     private lateinit var dark: RadioButton
-    private var callbacks: SearchFragment.Callbacks? = null
+    private var controller: NavController? = null
     private lateinit var settingsState: StateFlow<ThemeTypeState>
+    private lateinit var unlogUser: Button
+    private lateinit var logUser: LinearLayout
+    private lateinit var logout: Button
+    private lateinit var auth: FirebaseAuth
+    private lateinit var userName: TextView
 
     private val settingsViewModel: SettingsModel by activityViewModels {
         ModelProvider.Factory
@@ -50,7 +53,7 @@ class SettingsFragment: Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callbacks = context as SearchFragment.Callbacks?
+        controller = findNavController()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +67,12 @@ class SettingsFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
+
+        auth = Firebase.auth
+        logUser = view.findViewById(R.id.log_user)
+        unlogUser = view.findViewById(R.id.unlog_user)
+        logout = view.findViewById(R.id.logout)
+        userName = view.findViewById(R.id.user_name)
 
         radioButtonGroup = view.findViewById(R.id.theme_group) as RadioGroup
 
@@ -95,6 +104,26 @@ class SettingsFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+        val currentUser = auth.currentUser
+        if(currentUser != null) {
+            logUser.visibility = View.VISIBLE
+            userName.text = getString(R.string.user, auth.currentUser?.email)
+            unlogUser.visibility = View.GONE
+        } else {
+            unlogUser.visibility = View.VISIBLE
+            logUser.visibility = View.GONE
+        }
+
+        logout.setOnClickListener {
+            auth.signOut()
+            logUser.visibility = View.GONE
+            unlogUser.visibility = View.VISIBLE
+        }
+
+        unlogUser.setOnClickListener {
+            controller?.navigate(R.id.action_settingsFragment_to_loginFragment)
+        }
+
         menuHost.addMenuProvider(object: MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.search_menu, menu)
@@ -102,7 +131,7 @@ class SettingsFragment: Fragment() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 if(menuItem.itemId == android.R.id.home){
-                    callbacks?.onBackPressedSearch()
+                    controller?.navigateUp()
                     return true
                 }
                 return false
@@ -134,6 +163,6 @@ class SettingsFragment: Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        callbacks = null
+        controller = null
     }
 }

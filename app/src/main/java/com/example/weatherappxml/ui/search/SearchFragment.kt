@@ -1,11 +1,10 @@
-package com.example.weatherappxml.ui
+package com.example.weatherappxml.ui.search
 
 import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -15,32 +14,32 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.clearFragmentResult
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherappxml.R
-import com.example.weatherappxml.data.api.model.Coordinate
-import com.example.weatherappxml.utils.WeatherResult
+import com.example.weatherappxml.ui.main.DatabaseState
+import com.example.weatherappxml.ui.main.SearchState
+import com.example.weatherappxml.ui.main.WeatherState
+import com.example.weatherappxml.ui.main.WeatherViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlin.math.sign
 
 class SearchFragment: Fragment() {
 
-    interface Callbacks{
-        fun onBackPressedSearch()
-    }
 
     private lateinit var titleField: EditText
     private lateinit var clearButton: Button
@@ -48,8 +47,12 @@ class SearchFragment: Fragment() {
     private lateinit var searchState: StateFlow<SearchState>
     private lateinit var databaseState: StateFlow<DatabaseState>
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
+    private lateinit var signInButton: Button
     private lateinit var recyclerView: RecyclerView
-    private var callbacks: Callbacks? = null
+    private var controller: NavController? = null
+    private lateinit var auth: FirebaseAuth
+
+
     private var adapter: SearchAdapter? = SearchAdapter(emptyList())
 
     private val weatherViewModel: WeatherViewModel by activityViewModels {
@@ -60,7 +63,7 @@ class SearchFragment: Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callbacks = context as Callbacks?
+        controller = findNavController()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,9 +80,12 @@ class SearchFragment: Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_search, container, false)
 
+        auth = Firebase.auth
+
         titleField = view.findViewById(R.id.search_edit_text) as EditText
         clearButton = view.findViewById(R.id.btn_clear) as Button
         recyclerView = view.findViewById(R.id.search_recycler_view) as RecyclerView
+        signInButton = view.findViewById(R.id.sign_in_button)
 
         recyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -94,7 +100,7 @@ class SearchFragment: Fragment() {
 
         clearButton.setOnClickListener {
             titleField.setText("")
-            weatherViewModel.updateSearchText("")
+            weatherViewModel.clearCity()
         }
 
         titleField.setOnEditorActionListener{_, actionId, _ ->
@@ -116,6 +122,11 @@ class SearchFragment: Fragment() {
     private val menuHost: MenuHost get() = requireActivity()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        signInButton.setOnClickListener {
+            controller?.navigate(R.id.action_searchFragment_to_loginFragment)
+        }
+
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater){
                 menuInflater.inflate(R.menu.search_menu, menu)
@@ -126,7 +137,10 @@ class SearchFragment: Fragment() {
                 if (menuItem.itemId == android.R.id.home) {
                     weatherViewModel.closeSearchScreen()
                     Log.e("Home", activity?.supportFragmentManager?.backStackEntryCount.toString())
-                    callbacks?.onBackPressedSearch()
+
+                    controller?.navigateUp()
+
+
                     return true
                 }
 
@@ -149,7 +163,11 @@ class SearchFragment: Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
                 databaseState.collect{
                     if(searchState.value.textFieldCity.isBlank()){
-                        updateUiEmpty()
+                        if(auth.currentUser != null) {
+                            updateUiEmpty()
+                        } else {
+                            updateUiUnlog()
+                        }
                     }
                 }
             }
@@ -175,7 +193,11 @@ class SearchFragment: Fragment() {
                     clearButton.visibility = View.VISIBLE
                 } else {
                     clearButton.visibility = View.GONE
-                    updateUiEmpty()
+                    if(auth.currentUser != null) {
+                        updateUiEmpty()
+                    } else {
+                        updateUiUnlog()
+                    }
                 }
             }
 
@@ -186,30 +208,42 @@ class SearchFragment: Fragment() {
         titleField.addTextChangedListener(titleWatcher)
     }
 
+    private fun updateUiUnlog() {
+        signInButton.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
+
+    }
 
     private fun updateUiEmpty(){
+        signInButton.visibility = View.GONE
+        recyclerView.visibility = View.VISIBLE
         val listCityName = databaseState.value.storyOfSearch.map { it.name }
         adapter = SearchAdapter(listCityName)
         recyclerView.adapter = adapter
         adapter?.onItemClick = { item ->
             weatherViewModel.getWeather(item, false)
-            callbacks?.onBackPressedSearch()
+
+            controller?.navigateUp()
         }
     }
 
     private fun updateUiSearched(){
+        signInButton.visibility = View.GONE
+        recyclerView.visibility = View.VISIBLE
         adapter = SearchAdapter(searchState.value.coordinateList)
         recyclerView.adapter = adapter
         adapter?.onItemClick = { item ->
             weatherViewModel.getWeather(item, false)
-            callbacks?.onBackPressedSearch()
+
+            controller?.navigateUp()
+
             Log.e("TAG", item)
         }
     }
 
     override fun onDetach() {
         super.onDetach()
-        callbacks = null
+        controller = null
     }
 
 }

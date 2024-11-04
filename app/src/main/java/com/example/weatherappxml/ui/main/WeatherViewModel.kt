@@ -1,8 +1,6 @@
-package com.example.weatherappxml.ui
+package com.example.weatherappxml.ui.main
 
-import android.provider.ContactsContract.Data
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -15,7 +13,6 @@ import com.example.weatherappxml.data.api.model.Weather
 import com.example.weatherappxml.data.database.City
 import com.example.weatherappxml.data.repository.CitiesRepository
 import com.example.weatherappxml.data.repository.CoordinateRepository
-import com.example.weatherappxml.data.repository.OfflineCitiesRepository
 import com.example.weatherappxml.data.repository.WeatherRepository
 import com.example.weatherappxml.di.MainApp
 import com.example.weatherappxml.utils.WeatherResult
@@ -23,24 +20,16 @@ import com.github.pemistahl.lingua.api.Language
 import com.github.pemistahl.lingua.api.LanguageDetector
 import com.github.pemistahl.lingua.api.LanguageDetectorBuilder
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 
@@ -49,6 +38,7 @@ data class SearchState(
     val selectedCity: String = "",
     val coordinateList: List<String> = emptyList(),
 )
+
 
 data class WeatherState(
     val result: WeatherResult = WeatherResult.Loading,
@@ -142,8 +132,9 @@ class WeatherViewModel(
         _searchState.update { it.copy(coordinateList = emptyList()) }
         clearCity()
     }
-    fun clearCity(){
+    fun clearCity() {
         _searchState.update { it.copy(textFieldCity = "") }
+        _searchState.update { it.copy(coordinateList = emptyList()) }
     }
 
     //Получение координат города
