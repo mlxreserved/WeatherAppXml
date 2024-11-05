@@ -6,14 +6,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherappxml.R
+import com.example.weatherappxml.databinding.ListItemSearchBinding
 
 class SearchAdapter(val items: List<String>): RecyclerView.Adapter<SearchAdapter.SearchHolder>() {
 
+
     var onItemClick: ((String) -> Unit)? = null
 
-    inner class SearchHolder(view: View): RecyclerView.ViewHolder(view){
 
-        private val city: TextView = itemView.findViewById(R.id.search_city)
+    inner class SearchHolder(private val binding: ListItemSearchBinding): RecyclerView.ViewHolder(binding.root){
 
         init {
             itemView.setOnClickListener{
@@ -22,16 +23,16 @@ class SearchAdapter(val items: List<String>): RecyclerView.Adapter<SearchAdapter
         }
 
         fun bind(item: String) {
-            city.text = item
+            binding.searchCity.text = item
         }
 
 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.list_item_search, parent, false)
-        return SearchHolder(view)
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val binding = ListItemSearchBinding.inflate(layoutInflater, parent, false)
+        return SearchHolder(binding)
     }
 
     override fun getItemCount(): Int = items.size

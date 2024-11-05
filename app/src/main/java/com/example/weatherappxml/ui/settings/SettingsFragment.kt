@@ -26,6 +26,7 @@ import com.example.weatherappxml.R
 import com.example.weatherappxml.data.api.model.SettingsModel
 import com.example.weatherappxml.data.api.model.ThemeTypeState
 import com.example.weatherappxml.data.repository.ThemeType
+import com.example.weatherappxml.databinding.FragmentSettingsBinding
 import com.example.weatherappxml.di.ModelProvider
 import com.example.weatherappxml.ui.search.SearchFragment
 import com.google.firebase.auth.FirebaseAuth
@@ -35,17 +36,12 @@ import kotlinx.coroutines.flow.StateFlow
 
 class SettingsFragment: Fragment() {
 
-    private lateinit var toolbar: Toolbar
-    private lateinit var radioButtonGroup: RadioGroup
-    private lateinit var light: RadioButton
-    private lateinit var dark: RadioButton
+
+    private lateinit var binding: FragmentSettingsBinding
+
     private var controller: NavController? = null
     private lateinit var settingsState: StateFlow<ThemeTypeState>
-    private lateinit var unlogUser: Button
-    private lateinit var logUser: LinearLayout
-    private lateinit var logout: Button
     private lateinit var auth: FirebaseAuth
-    private lateinit var userName: TextView
 
     private val settingsViewModel: SettingsModel by activityViewModels {
         ModelProvider.Factory
@@ -66,17 +62,11 @@ class SettingsFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_settings, container, false)
+        binding = FragmentSettingsBinding.inflate(layoutInflater)
 
         auth = Firebase.auth
-        logUser = view.findViewById(R.id.log_user)
-        unlogUser = view.findViewById(R.id.unlog_user)
-        logout = view.findViewById(R.id.logout)
-        userName = view.findViewById(R.id.user_name)
 
-        radioButtonGroup = view.findViewById(R.id.theme_group) as RadioGroup
-
-        radioButtonGroup.check(when(AppCompatDelegate.getDefaultNightMode()){
+        binding.themeGroup.check(when(AppCompatDelegate.getDefaultNightMode()){
             AppCompatDelegate.MODE_NIGHT_NO -> R.id.light
             AppCompatDelegate.MODE_NIGHT_YES -> R.id.dark
             else -> R.id.auto
@@ -85,19 +75,14 @@ class SettingsFragment: Fragment() {
 
         val activity: AppCompatActivity = activity as AppCompatActivity
 
-        toolbar = view.findViewById(R.id.settings_toolbar) as Toolbar
-
-        activity.setSupportActionBar(toolbar)
+        activity.setSupportActionBar(binding.settingsToolbar)
         activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         activity.supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24)
         activity.supportActionBar?.setTitle("")
 
-        light = view.findViewById(R.id.light)
-        dark = view.findViewById(R.id.dark)
 
 
-
-        return view
+        return binding.root
     }
 
     private val menuHost: MenuHost get() = requireActivity()
@@ -106,21 +91,21 @@ class SettingsFragment: Fragment() {
 
         val currentUser = auth.currentUser
         if(currentUser != null) {
-            logUser.visibility = View.VISIBLE
-            userName.text = getString(R.string.user, auth.currentUser?.email)
-            unlogUser.visibility = View.GONE
+            binding.logUser.visibility = View.VISIBLE
+            binding.userName.text = getString(R.string.user, auth.currentUser?.email)
+            binding.unlogUser.visibility = View.GONE
         } else {
-            unlogUser.visibility = View.VISIBLE
-            logUser.visibility = View.GONE
+            binding.unlogUser.visibility = View.VISIBLE
+            binding.logUser.visibility = View.GONE
         }
 
-        logout.setOnClickListener {
+        binding.logout.setOnClickListener {
             auth.signOut()
-            logUser.visibility = View.GONE
-            unlogUser.visibility = View.VISIBLE
+            binding.logUser.visibility = View.GONE
+            binding.unlogUser.visibility = View.VISIBLE
         }
 
-        unlogUser.setOnClickListener {
+        binding.unlogUser.setOnClickListener {
             controller?.navigate(R.id.action_settingsFragment_to_loginFragment)
         }
 
@@ -141,7 +126,7 @@ class SettingsFragment: Fragment() {
 
 
 
-        radioButtonGroup.setOnCheckedChangeListener { _, checkedId ->
+        binding.themeGroup.setOnCheckedChangeListener { _, checkedId ->
             when(checkedId) {
                 R.id.auto -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)

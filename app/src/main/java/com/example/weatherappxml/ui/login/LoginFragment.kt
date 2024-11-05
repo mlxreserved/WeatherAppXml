@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.example.weatherappxml.R
+import com.example.weatherappxml.databinding.FragmentLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
@@ -20,12 +21,9 @@ import com.google.firebase.ktx.Firebase
 
 class LoginFragment: Fragment() {
 
-    private lateinit var loginEditText: EditText
-    private lateinit var passwordEditText: EditText
-    private lateinit var signInButton: Button
-    private lateinit var signUpButton: Button
+    private lateinit var binding: FragmentLoginBinding
+
     private lateinit var auth: FirebaseAuth
-    private lateinit var errorTextView: TextView
     private var controller: NavController? = null
 
 
@@ -39,30 +37,27 @@ class LoginFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_login, container, false)
+
+        binding = FragmentLoginBinding.inflate(layoutInflater)
+
 
         auth = Firebase.auth
-        loginEditText = view.findViewById(R.id.login_et)
-        passwordEditText = view.findViewById(R.id.password_et)
-        signInButton = view.findViewById(R.id.sign_in_button)
-        signUpButton = view.findViewById(R.id.sign_up_button)
-        errorTextView = view.findViewById(R.id.error_tv)
 
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        signInButton.setOnClickListener {
+        binding.signInButton.setOnClickListener {
             if(checkAllFields()) {
-                loginUser(auth, loginEditText.text.toString(), passwordEditText.text.toString())
+                loginUser(auth, binding.loginEt.text.toString(), binding.passwordEt.text.toString())
             }
         }
 
-        signUpButton.setOnClickListener {
-            loginEditText.setText("")
-            passwordEditText.setText("")
+        binding.signUpButton.setOnClickListener {
+            binding.loginEt.setText("")
+            binding.errorTv.setText("")
             controller?.navigate(R.id.action_loginFragment_to_registrationFragment)
         }
     }
@@ -70,27 +65,27 @@ class LoginFragment: Fragment() {
     private fun loginUser(auth: FirebaseAuth, login: String, password: String) {
         auth.signInWithEmailAndPassword(login, password).addOnCompleteListener { task ->
             if(task.isSuccessful) {
-                errorTextView.visibility = View.GONE
+                binding.errorTv.visibility = View.GONE
                 controller?.navigateUp()
             } else {
-                errorTextView.visibility = View.VISIBLE
+                binding.errorTv.visibility = View.VISIBLE
             }
         }
     }
 
     private fun checkAllFields(): Boolean {
-        if(loginEditText.text.isBlank()) {
-            loginEditText.error = getString(R.string.error_login)
+        if(binding.loginEt.text.isBlank()) {
+            binding.loginEt.error = getString(R.string.error_login)
             return false
-        } else if(!android.util.Patterns.EMAIL_ADDRESS.matcher(loginEditText.text.toString()).matches()){
-            loginEditText.error = getString(R.string.error_email)
+        } else if(!android.util.Patterns.EMAIL_ADDRESS.matcher(binding.loginEt.text.toString()).matches()){
+            binding.loginEt.error = getString(R.string.error_email)
             return false
         }
-        if(passwordEditText.text.isBlank()) {
-            passwordEditText.error = getString(R.string.error_pass)
+        if(binding.passwordEt.text.isBlank()) {
+            binding.passwordEt.error = getString(R.string.error_pass)
             return false
-        } else if (passwordEditText.length() < 8) {
-            passwordEditText.error = getString(R.string.error_pass_len)
+        } else if (binding.passwordEt.length() < 8) {
+            binding.passwordEt.error = getString(R.string.error_pass_len)
             return false
         }
         return true

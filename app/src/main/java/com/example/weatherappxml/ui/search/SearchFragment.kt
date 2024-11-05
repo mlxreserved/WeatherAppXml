@@ -27,6 +27,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherappxml.R
+import com.example.weatherappxml.databinding.FragmentSearchBinding
 import com.example.weatherappxml.ui.main.DatabaseState
 import com.example.weatherappxml.ui.main.SearchState
 import com.example.weatherappxml.ui.main.WeatherState
@@ -40,15 +41,12 @@ import kotlin.math.sign
 
 class SearchFragment: Fragment() {
 
+    private lateinit var binding: FragmentSearchBinding
 
-    private lateinit var titleField: EditText
-    private lateinit var clearButton: Button
     private lateinit var weatherState: StateFlow<WeatherState>
     private lateinit var searchState: StateFlow<SearchState>
     private lateinit var databaseState: StateFlow<DatabaseState>
-    private lateinit var toolbar: androidx.appcompat.widget.Toolbar
-    private lateinit var signInButton: Button
-    private lateinit var recyclerView: RecyclerView
+
     private var controller: NavController? = null
     private lateinit var auth: FirebaseAuth
 
@@ -78,32 +76,26 @@ class SearchFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_search, container, false)
+
+        binding = FragmentSearchBinding.inflate(layoutInflater)
 
         auth = Firebase.auth
 
-        titleField = view.findViewById(R.id.search_edit_text) as EditText
-        clearButton = view.findViewById(R.id.btn_clear) as Button
-        recyclerView = view.findViewById(R.id.search_recycler_view) as RecyclerView
-        signInButton = view.findViewById(R.id.sign_in_button)
-
-        recyclerView.layoutManager = LinearLayoutManager(context)
-
-        toolbar = view.findViewById(R.id.toolbar) as androidx.appcompat.widget.Toolbar
+        binding.searchRecyclerView.layoutManager = LinearLayoutManager(context)
 
         val activity: AppCompatActivity = activity as AppCompatActivity
 
-        activity.setSupportActionBar(toolbar)
+        activity.setSupportActionBar(binding.toolbar)
         activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         activity.supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24)
 
 
-        clearButton.setOnClickListener {
-            titleField.setText("")
+        binding.btnClear.setOnClickListener {
+            binding.searchEditText.setText("")
             weatherViewModel.clearCity()
         }
 
-        titleField.setOnEditorActionListener{_, actionId, _ ->
+        binding.searchEditText.setOnEditorActionListener{_, actionId, _ ->
             if(actionId == EditorInfo.IME_ACTION_DONE){
                 try{
                     val city = searchState.value.textFieldCity
@@ -116,14 +108,14 @@ class SearchFragment: Fragment() {
             false
         }
 
-        return view
+        return binding.root
     }
 
     private val menuHost: MenuHost get() = requireActivity()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        signInButton.setOnClickListener {
+        binding.signInButton.setOnClickListener {
             controller?.navigate(R.id.action_searchFragment_to_loginFragment)
         }
 
@@ -190,9 +182,9 @@ class SearchFragment: Fragment() {
                                        count: Int) {
                 weatherViewModel.updateSearchText(s.toString())
                 if(s.toString()!=""){
-                    clearButton.visibility = View.VISIBLE
+                    binding.btnClear.visibility = View.VISIBLE
                 } else {
-                    clearButton.visibility = View.GONE
+                    binding.btnClear.visibility = View.GONE
                     if(auth.currentUser != null) {
                         updateUiEmpty()
                     } else {
@@ -205,21 +197,21 @@ class SearchFragment: Fragment() {
 
             }
         }
-        titleField.addTextChangedListener(titleWatcher)
+        binding.searchEditText.addTextChangedListener(titleWatcher)
     }
 
     private fun updateUiUnlog() {
-        signInButton.visibility = View.VISIBLE
-        recyclerView.visibility = View.GONE
+        binding.signInButton.visibility = View.VISIBLE
+        binding.searchRecyclerView.visibility = View.GONE
 
     }
 
     private fun updateUiEmpty(){
-        signInButton.visibility = View.GONE
-        recyclerView.visibility = View.VISIBLE
+        binding.signInButton.visibility = View.GONE
+        binding.searchRecyclerView.visibility = View.VISIBLE
         val listCityName = databaseState.value.storyOfSearch.map { it.name }
         adapter = SearchAdapter(listCityName)
-        recyclerView.adapter = adapter
+        binding.searchRecyclerView.adapter = adapter
         adapter?.onItemClick = { item ->
             weatherViewModel.getWeather(item, false)
 
@@ -228,10 +220,10 @@ class SearchFragment: Fragment() {
     }
 
     private fun updateUiSearched(){
-        signInButton.visibility = View.GONE
-        recyclerView.visibility = View.VISIBLE
+        binding.signInButton.visibility = View.GONE
+        binding.searchRecyclerView.visibility = View.VISIBLE
         adapter = SearchAdapter(searchState.value.coordinateList)
-        recyclerView.adapter = adapter
+        binding.searchRecyclerView.adapter = adapter
         adapter?.onItemClick = { item ->
             weatherViewModel.getWeather(item, false)
 
