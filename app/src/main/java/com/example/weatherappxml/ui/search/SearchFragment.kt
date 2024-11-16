@@ -77,7 +77,7 @@ class SearchFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        binding = FragmentSearchBinding.inflate(layoutInflater)
+        binding = FragmentSearchBinding.inflate(layoutInflater, container, false)
 
         auth = Firebase.auth
 

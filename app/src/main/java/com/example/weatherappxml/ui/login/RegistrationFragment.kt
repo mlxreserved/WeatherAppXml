@@ -12,19 +12,16 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.weatherappxml.R
+import com.example.weatherappxml.databinding.FragmentRegistrationBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
 class RegistrationFragment: Fragment() {
 
-    private lateinit var loginEditText: EditText
-    private lateinit var passwordEditText: EditText
-    private lateinit var confirmPasswordEditText: EditText
-    private lateinit var enterButton: Button
+    private lateinit var binding: FragmentRegistrationBinding
     private var controller: NavController? = null
     private lateinit var auth: FirebaseAuth
-    private lateinit var errorReg: TextView
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -36,16 +33,11 @@ class RegistrationFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_registration, container, false)
+        binding = FragmentRegistrationBinding.inflate(layoutInflater)
 
         auth = Firebase.auth
-        errorReg = view.findViewById(R.id.error_reg)
-        loginEditText = view.findViewById(R.id.login_et)
-        passwordEditText = view.findViewById(R.id.password_et)
-        confirmPasswordEditText = view.findViewById(R.id.confirm_password_et)
-        enterButton = view.findViewById(R.id.enter_button)
 
-        return view
+        return binding.root
     }
 
     private fun comparePasswords(pass: String, confPass: String): Boolean {
@@ -53,43 +45,43 @@ class RegistrationFragment: Fragment() {
     }
 
     private fun checkAllFields(): Boolean {
-        if(loginEditText.text.isBlank()) {
-            loginEditText.error = getString(R.string.error_login)
+        if(binding.loginEt.text.isBlank()) {
+            binding.loginEt.error = getString(R.string.error_login)
             return false
-        } else if(!android.util.Patterns.EMAIL_ADDRESS.matcher(loginEditText.text.toString()).matches()){
-            loginEditText.error = getString(R.string.error_email)
-            return false
-        }
-        if(passwordEditText.text.isBlank()) {
-            passwordEditText.error = getString(R.string.error_pass)
-            return false
-        } else if (passwordEditText.length() < 8) {
-            passwordEditText.error = getString(R.string.error_pass_len)
+        } else if(!android.util.Patterns.EMAIL_ADDRESS.matcher(binding.loginEt.text.toString()).matches()){
+            binding.loginEt.error = getString(R.string.error_email)
             return false
         }
-        if(confirmPasswordEditText.text.isBlank()) {
-            confirmPasswordEditText.error = getString(R.string.error_conf_pass)
+        if(binding.passwordEt.text.isBlank()) {
+            binding.passwordEt.error = getString(R.string.error_pass)
+            return false
+        } else if (binding.passwordEt.length() < 8) {
+            binding.passwordEt.error = getString(R.string.error_pass_len)
+            return false
+        }
+        if(binding.confirmPasswordEt.text.isBlank()) {
+            binding.confirmPasswordEt.error = getString(R.string.error_conf_pass)
             return false
         }
         return true
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        enterButton.setOnClickListener {
+        binding.enterButton.setOnClickListener {
             if(checkAllFields()) {
                 if (comparePasswords(
-                        passwordEditText.text.toString(),
-                        confirmPasswordEditText.text.toString()
+                        binding.passwordEt.text.toString(),
+                        binding.confirmPasswordEt.text.toString()
                     )
                 ) {
-                    errorReg.visibility = View.GONE
+                    binding.errorReg.visibility = View.GONE
                     registrationUser(
                         auth,
-                        loginEditText.text.toString(),
-                        passwordEditText.text.toString()
+                        binding.loginEt.text.toString(),
+                        binding.passwordEt.text.toString()
                     )
                 } else {
-                    errorReg.visibility = View.VISIBLE
+                    binding.errorReg.visibility = View.VISIBLE
                 }
             }
         }

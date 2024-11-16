@@ -12,6 +12,11 @@ import com.example.weatherappxml.R
 import com.example.weatherappxml.data.api.model.Forecastday
 import com.example.weatherappxml.data.api.model.Hour
 import com.example.weatherappxml.data.api.model.Weather
+import com.example.weatherappxml.databinding.ListItemHourBinding
+import com.example.weatherappxml.databinding.ListItemSearchBinding
+import com.example.weatherappxml.databinding.ListItemStringBinding
+import com.example.weatherappxml.databinding.ListItemWeatherBinding
+import com.example.weatherappxml.databinding.ListRecyclerViewItemBinding
 import java.text.SimpleDateFormat
 import kotlin.math.roundToInt
 
@@ -34,41 +39,25 @@ class WeatherAdapter(private val items: List<ListItem>, private val secondRecIte
         }
     }
 
-    inner class HourHolder(view: View): RecyclerView.ViewHolder(view){
-        private val hourTextView: TextView = itemView.findViewById(R.id.item_hour)
-        private val hourTempTextView: TextView = itemView.findViewById(R.id.item_hour_temp)
-        private val hourImage: ImageView = itemView.findViewById(R.id.item_hour_image)
-
+    inner class HourHolder(private val listItemHourBinding: ListItemHourBinding): RecyclerView.ViewHolder(listItemHourBinding.root){
         fun bind(item: ListItem.HourItem) {
-
-
-            hourTextView.text=formatTime(item.hour.time, false)
-            /*hourTextView.text = if(item.hour.time.substring(item.hour.time.length-5) != "00:00"){
-
-                formatTime(item.hour.time, false)
-            } else {
-                formatTime(item.hour.time, true)
-            }*/
-            hourTempTextView.text = "${item.hour.temp_c.roundToInt()}°"
-            hourImage.load("https://${item.hour.condition.icon}")
+            listItemHourBinding.itemHour.text=formatTime(item.hour.time, false)
+            listItemHourBinding.itemHourTemp.text = "${item.hour.temp_c.roundToInt()}°"
+            listItemHourBinding.itemHourImage.load("https://${item.hour.condition.icon}")
         }
     }
 
-    inner class WeatherHolder(view: View): RecyclerView.ViewHolder(view){
-        private val weatherTempTextView: TextView = itemView.findViewById(R.id.temperature) as TextView
-        private val weatherForecastTextView: TextView = itemView.findViewById(R.id.weather_forecast) as TextView
-        private val weatherImage: ImageView = itemView.findViewById(R.id.weather_image) as ImageView
-
+    inner class WeatherHolder(private val listItemWeatherBinding: ListItemWeatherBinding): RecyclerView.ViewHolder(listItemWeatherBinding.root){
         fun bind(item: ListItem.WeatherItem) {
-            weatherTempTextView.text = "${item.currentWeather.current.tempCelsius.roundToInt()}°"
-            weatherForecastTextView.text = item.currentWeather.current.condition.text
-            weatherImage.load("https://${item.currentWeather.current.condition.icon}")
+            listItemWeatherBinding.temperature.text = "${item.currentWeather.current.tempCelsius.roundToInt()}°"
+            listItemWeatherBinding.weatherForecast.text = item.currentWeather.current.condition.text
+            listItemWeatherBinding.weatherImage.load("https://${item.currentWeather.current.condition.icon}")
         }
     }
 
 
-    inner class DayHolder(view: View): RecyclerView.ViewHolder(view){
-        val recyclerView: RecyclerView = itemView.findViewById(R.id.sub_recycler_view)
+    inner class DayHolder(private val listRecyclerViewItemBinding: ListRecyclerViewItemBinding): RecyclerView.ViewHolder(listRecyclerViewItemBinding.root){
+        val recyclerView: RecyclerView = listRecyclerViewItemBinding.subRecyclerView
 
         fun bind(childLayoutManager: LinearLayoutManager){
             recyclerView.layoutManager = childLayoutManager
@@ -76,15 +65,13 @@ class WeatherAdapter(private val items: List<ListItem>, private val secondRecIte
             recyclerView.adapter = adapter
             adapter.onItemClick = onItemClick
 
-            recyclerView.setRecycledViewPool(viewPool)
+            listRecyclerViewItemBinding.subRecyclerView.setRecycledViewPool(viewPool)
         }
     }
 
-    inner class StringHolder(view: View): RecyclerView.ViewHolder(view){
-        private val stringItem: TextView = itemView.findViewById(R.id.string_item)
-
+    inner class StringHolder(private val listItemStringBinding: ListItemStringBinding): RecyclerView.ViewHolder(listItemStringBinding.root){
         fun bind(item: ListItem.StringItem){
-            stringItem.text = item.string
+            listItemStringBinding.stringItem.text = item.string
         }
     }
 
@@ -100,22 +87,26 @@ class WeatherAdapter(private val items: List<ListItem>, private val secondRecIte
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
         return when(viewType) {
-                0 -> WeatherHolder(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.list_item_weather, parent, false)
-                )
-                1 -> DayHolder(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.list_recycler_view_item, parent, false)
-                )
-                2 -> HourHolder(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.list_item_hour, parent, false)
-                )
-                3 -> StringHolder(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.list_item_string, parent, false)
-                )
+                0 -> {
+                    val layoutInflater = LayoutInflater.from(parent.context)
+                    val listItemWeatherBinding: ListItemWeatherBinding = ListItemWeatherBinding.inflate(layoutInflater, parent, false)
+                    WeatherHolder(listItemWeatherBinding)
+                }
+                1 -> {
+                    val layoutInflater = LayoutInflater.from(parent.context)
+                    val listRecyclerViewItemBinding: ListRecyclerViewItemBinding = ListRecyclerViewItemBinding.inflate(layoutInflater, parent, false)
+                    DayHolder(listRecyclerViewItemBinding)
+                }
+                2 -> {
+                    val layoutInflater = LayoutInflater.from(parent.context)
+                    val listItemHourBinding: ListItemHourBinding = ListItemHourBinding.inflate(layoutInflater, parent, false)
+                    HourHolder(listItemHourBinding)
+                }
+                3 -> {
+                    val layoutInflater = LayoutInflater.from(parent.context)
+                    val listItemStringBinding: ListItemStringBinding = ListItemStringBinding.inflate(layoutInflater, parent, false)
+                    StringHolder(listItemStringBinding)
+                }
                 else -> throw IllegalArgumentException("Invalid view type")
         }
     }
@@ -123,6 +114,7 @@ class WeatherAdapter(private val items: List<ListItem>, private val secondRecIte
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+
         when(val item = items[position]){
             is ListItem.WeatherItem -> (holder as WeatherHolder).bind(item)
             is ListItem.DayItem -> {
@@ -131,7 +123,6 @@ class WeatherAdapter(private val items: List<ListItem>, private val secondRecIte
                 childlayoutManager.initialPrefetchItemCount = secondRecItems.size
 
                 holder.bind(childlayoutManager)
-                /*(holder as DayHolder).bind(item)*/
             }
             is ListItem.HourItem -> (holder as HourHolder).bind(item)
             is ListItem.StringItem -> (holder as StringHolder).bind(item)

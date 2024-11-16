@@ -4,7 +4,7 @@ import com.example.weatherappxml.data.api.CoordinateService
 import com.example.weatherappxml.data.api.model.Coordinate
 import javax.inject.Inject
 
-private const val KEY_COORDINATE = "8868527d-80b8-43d6-bab9-f6111ec94ee8"
+private const val KEY_COORDINATE = "3fc8d508-f3bf-4404-8f1f-318cf75711fa"
 
 interface CoordinateRepository{
 

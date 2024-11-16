@@ -62,7 +62,7 @@ class SettingsFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSettingsBinding.inflate(layoutInflater)
+        binding = FragmentSettingsBinding.inflate(layoutInflater, container, false)
 
         auth = Firebase.auth
 

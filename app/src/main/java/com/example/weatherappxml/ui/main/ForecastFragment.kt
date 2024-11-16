@@ -18,6 +18,8 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.example.weatherappxml.R
+import com.example.weatherappxml.databinding.FragmentForecastBinding
+import com.example.weatherappxml.databinding.ItemForecastBinding
 import com.example.weatherappxml.ui.search.SearchFragment
 import com.example.weatherappxml.utils.WeatherResult
 import com.google.android.material.tabs.TabLayout
@@ -26,13 +28,11 @@ import kotlinx.coroutines.flow.StateFlow
 
 class ForecastFragment: Fragment() {
 
+    private lateinit var binding: FragmentForecastBinding
 
-    private lateinit var toolbar: Toolbar
     private var controller: NavController? = null
-    private lateinit var viewPager: ViewPager2
     private var adapter: ViewPagerAdapter? = null
     private lateinit var weatherState: StateFlow<WeatherState>
-    private lateinit var tabLayout: TabLayout
 
     private val weatherViewModel: WeatherViewModel by activityViewModels {
         WeatherViewModel.Factory
@@ -53,21 +53,17 @@ class ForecastFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_forecast, container, false)
-
-        toolbar = view.findViewById(R.id.forecast_toolbar) as Toolbar
-        viewPager = view.findViewById(R.id.viewPager2) as ViewPager2
-        tabLayout = view.findViewById(R.id.tab_layout) as TabLayout
+        binding = FragmentForecastBinding.inflate(layoutInflater, container, false)
 
         val activity: AppCompatActivity = activity as AppCompatActivity
 
-        activity.setSupportActionBar(toolbar)
+        activity.setSupportActionBar(binding.forecastToolbar)
         activity.supportActionBar?.setTitle("")
         activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         activity.supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_arrow_back_24)
 
 
-        return view
+        return binding.root
     }
 
     private val menuHost: MenuHost get() = requireActivity()
@@ -94,11 +90,11 @@ class ForecastFragment: Fragment() {
 
     fun updateUi(res: WeatherResult.Success){
         adapter = ViewPagerAdapter(res.data.forecast.forecastday.map { ListItem.DayItem(it) })
-        viewPager.adapter = adapter
-        TabLayoutMediator(tabLayout, viewPager){tab, position ->
+        binding.viewPager2.adapter = adapter
+        TabLayoutMediator(binding.tabLayout, binding.viewPager2){tab, position ->
             tab.text = weatherViewModel.formatDate(res.data.forecast.forecastday[position].date, week = true, short = true) + "\n" + weatherViewModel.formatDate(res.data.forecast.forecastday[position].date, week = false, short = true)
         }.attach()
-        viewPager.setCurrentItem(weatherState.value.currentItem, false)
+        binding.viewPager2.setCurrentItem(weatherState.value.currentItem, false)
     }
 
     override fun onDetach() {

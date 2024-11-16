@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.weatherappxml.R
+import com.example.weatherappxml.databinding.ListItemDayBinding
 import java.text.SimpleDateFormat
 import kotlin.math.roundToInt
 
@@ -38,13 +39,7 @@ class DayAdapter(val items: List<ListItem.DayItem>): RecyclerView.Adapter<DayAda
 
     }
 
-    inner class ViewHolder(view: View): RecyclerView.ViewHolder(view){
-        private val dayDateTextView: TextView = itemView.findViewById(R.id.day_date)
-        private val dayWeekTextDate: TextView = itemView.findViewById(R.id.day_week)
-        private val dayImage: ImageView = itemView.findViewById(R.id.day_image)
-        private val dayTempOfDayTextView: TextView = itemView.findViewById(R.id.temp_of_day)
-        private val dayTempOfNightTextView: TextView = itemView.findViewById(R.id.temp_of_night)
-
+    inner class ViewHolder(private val listItemDayBinding: ListItemDayBinding): RecyclerView.ViewHolder(listItemDayBinding.root){
         init {
             itemView.setOnClickListener{
                 onItemClick?.invoke(items[absoluteAdapterPosition], absoluteAdapterPosition)
@@ -52,16 +47,18 @@ class DayAdapter(val items: List<ListItem.DayItem>): RecyclerView.Adapter<DayAda
         }
 
         fun bind(item: ListItem.DayItem){
-            dayDateTextView.text = formatDate(item.forecast.date, week = false, short = false )
-            dayWeekTextDate.text = formatDate(item.forecast.date, week = true, short = false)
-            dayImage.load("https://${item.forecast.day.condition.icon}")
-            dayTempOfDayTextView.text = itemView.context.getString(R.string.day_temperature, item.forecast.day.maxtemp_c.roundToInt())
-            dayTempOfNightTextView.text = itemView.context.getString(R.string.night_temperature, item.forecast.day.mintemp_c.roundToInt())
+            listItemDayBinding.dayDate.text = formatDate(item.forecast.date, week = false, short = false )
+            listItemDayBinding.dayWeek.text = formatDate(item.forecast.date, week = true, short = false)
+            listItemDayBinding.dayImage.load("https://${item.forecast.day.condition.icon}")
+            listItemDayBinding.tempOfDay.text = itemView.context.getString(R.string.day_temperature, item.forecast.day.maxtemp_c.roundToInt())
+            listItemDayBinding.tempOfNight.text = itemView.context.getString(R.string.night_temperature, item.forecast.day.mintemp_c.roundToInt())
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.list_item_day, parent, false))
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val listItemDayBinding: ListItemDayBinding = ListItemDayBinding.inflate(layoutInflater, parent, false)
+        return ViewHolder(listItemDayBinding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

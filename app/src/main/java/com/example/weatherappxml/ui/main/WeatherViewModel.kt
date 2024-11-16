@@ -191,7 +191,11 @@ class WeatherViewModel(
                         _weatherState.value.languageMap[_weatherState.value.lang] ?: "ru_RU"
                     )
                     _searchState.update { it.copy(coordinateList = handleNameOfCity(res)) }
-                } catch (e: IOException) {
+                } catch (e: IOException){
+                    Log.e("Coordinate", "${e.message}")
+                }
+
+                catch (e: Exception) {
                     Log.e("Coordinate", "${e.message}")
                 }
             }
