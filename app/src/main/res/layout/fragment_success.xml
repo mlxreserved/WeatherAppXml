@@ -28,10 +28,12 @@
                 android:textSize="20sp"
                 android:textAlignment="center"/>
         </androidx.appcompat.widget.Toolbar>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/weather_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            tools:itemCount="3" />
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/loadingbar"

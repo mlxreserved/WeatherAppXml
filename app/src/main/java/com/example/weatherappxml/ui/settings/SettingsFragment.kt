@@ -106,7 +106,7 @@ class SettingsFragment: Fragment() {
         }
 
         binding.unlogUser.setOnClickListener {
-            controller?.navigate(R.id.action_settingsFragment_to_loginFragment)
+            controller?.navigate(R.id.action_settingsFragment_to_login_nav)
         }
 
         menuHost.addMenuProvider(object: MenuProvider {

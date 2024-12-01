@@ -42,4 +42,5 @@ google-firebase-auth = { group = "com.google.firebase", name = "firebase-auth"}
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 gms-google-services = { id = "com.google.gms.google-services", version.ref = "gmsGoogleServices"}
+android-library = { id = "com.android.library", version.ref = "agp" }
 

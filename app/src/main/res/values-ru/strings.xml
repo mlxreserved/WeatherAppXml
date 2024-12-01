@@ -32,4 +32,5 @@
     <string name="error_pass">Необходимо ввести пароль</string>
     <string name="error_pass_len">Пароль должен содержать больше 8 символов</string>
     <string name="error_conf_pass">Необходимо ввести подтверждение пароля</string>
+    <string name="error_serv">Плохое соединение</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.weatherappxml.ui.main
+package com.example.weatherappxml.ui
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -8,13 +8,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.weatherappxml.data.api.model.Coordinate
-import com.example.weatherappxml.data.api.model.Hour
 import com.example.weatherappxml.data.api.model.Weather
 import com.example.weatherappxml.data.database.City
 import com.example.weatherappxml.data.repository.CitiesRepository
 import com.example.weatherappxml.data.repository.CoordinateRepository
 import com.example.weatherappxml.data.repository.WeatherRepository
 import com.example.weatherappxml.di.MainApp
+import com.example.weatherappxml.ui.model.DatabaseState
+import com.example.weatherappxml.ui.model.SearchUiState
+import com.example.weatherappxml.ui.model.WeatherUiState
 import com.example.weatherappxml.utils.WeatherResult
 import com.github.pemistahl.lingua.api.Language
 import com.github.pemistahl.lingua.api.LanguageDetector
@@ -33,24 +35,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 
-data class SearchState(
-    val textFieldCity: String = "",
-    val selectedCity: String = "",
-    val coordinateList: List<String> = emptyList(),
-)
 
-
-data class WeatherState(
-    val result: WeatherResult = WeatherResult.Loading,
-    val languageMap: Map<String, String> = mapOf("ru" to "ru_RU", "en" to "en_US"),
-    val lang: String = "ru",
-    val hourList: MutableList<Hour> = mutableListOf(),
-    val currentItem: Int = -1
-)
-
-data class DatabaseState(
-    val storyOfSearch: List<City> = listOf(),
-)
 
 class WeatherViewModel(
     private val weatherRepository: WeatherRepository,
@@ -59,12 +44,12 @@ class WeatherViewModel(
 ): ViewModel() {
 
 
-    private val _searchState = MutableStateFlow(SearchState())
-    val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
+    private val _searchState = MutableStateFlow(SearchUiState())
+    val searchState: StateFlow<SearchUiState> = _searchState.asStateFlow()
 
 
-    private val _weatherState = MutableStateFlow(WeatherState())
-    val weatherState: StateFlow<WeatherState> = _weatherState.asStateFlow()
+    private val _weatherState = MutableStateFlow(WeatherUiState())
+    val weatherState: StateFlow<WeatherUiState> = _weatherState.asStateFlow()
 
 
     val databaseState: StateFlow<DatabaseState> = citiesRepository.getAllCities().map { DatabaseState(it) }

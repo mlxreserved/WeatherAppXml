@@ -9,20 +9,17 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import androidx.viewpager2.widget.ViewPager2
 import com.example.weatherappxml.R
 import com.example.weatherappxml.databinding.FragmentForecastBinding
-import com.example.weatherappxml.databinding.ItemForecastBinding
-import com.example.weatherappxml.ui.search.SearchFragment
+import com.example.weatherappxml.ui.WeatherViewModel
+import com.example.weatherappxml.ui.model.WeatherUiState
 import com.example.weatherappxml.utils.WeatherResult
-import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.flow.StateFlow
 
@@ -32,7 +29,7 @@ class ForecastFragment: Fragment() {
 
     private var controller: NavController? = null
     private var adapter: ViewPagerAdapter? = null
-    private lateinit var weatherState: StateFlow<WeatherState>
+    private lateinit var weatherState: StateFlow<WeatherUiState>
 
     private val weatherViewModel: WeatherViewModel by activityViewModels {
         WeatherViewModel.Factory

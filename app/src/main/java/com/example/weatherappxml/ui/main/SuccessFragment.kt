@@ -9,11 +9,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.contentValuesOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -24,15 +21,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weatherappxml.R
 import com.example.weatherappxml.data.api.model.ThemeModel
 import com.example.weatherappxml.data.repository.ThemeType
 import com.example.weatherappxml.databinding.FragmentSuccessBinding
 import com.example.weatherappxml.di.ModelProvider
+import com.example.weatherappxml.ui.WeatherViewModel
+import com.example.weatherappxml.ui.model.SearchUiState
+import com.example.weatherappxml.ui.model.WeatherUiState
 import com.example.weatherappxml.utils.WeatherResult
-import com.google.android.material.progressindicator.CircularProgressIndicator
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -40,8 +37,8 @@ class SuccessFragment : Fragment() {
 
 
     private lateinit var binding: FragmentSuccessBinding
-    private lateinit var weatherState: StateFlow<WeatherState>
-    private lateinit var searchState: StateFlow<SearchState>
+    private lateinit var weatherState: StateFlow<WeatherUiState>
+    private lateinit var searchState: StateFlow<SearchUiState>
     private var controller: NavController? = null
     private var adapter: WeatherAdapter? = null
 

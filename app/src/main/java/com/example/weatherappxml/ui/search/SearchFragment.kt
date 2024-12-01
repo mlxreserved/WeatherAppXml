@@ -12,8 +12,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -25,26 +23,24 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherappxml.R
 import com.example.weatherappxml.databinding.FragmentSearchBinding
-import com.example.weatherappxml.ui.main.DatabaseState
-import com.example.weatherappxml.ui.main.SearchState
-import com.example.weatherappxml.ui.main.WeatherState
-import com.example.weatherappxml.ui.main.WeatherViewModel
+import com.example.weatherappxml.ui.WeatherViewModel
+import com.example.weatherappxml.ui.model.DatabaseState
+import com.example.weatherappxml.ui.model.SearchUiState
+import com.example.weatherappxml.ui.model.WeatherUiState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlin.math.sign
 
 class SearchFragment: Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
 
-    private lateinit var weatherState: StateFlow<WeatherState>
-    private lateinit var searchState: StateFlow<SearchState>
+    private lateinit var weatherState: StateFlow<WeatherUiState>
+    private lateinit var searchState: StateFlow<SearchUiState>
     private lateinit var databaseState: StateFlow<DatabaseState>
 
     private var controller: NavController? = null
@@ -116,7 +112,7 @@ class SearchFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         binding.signInButton.setOnClickListener {
-            controller?.navigate(R.id.action_searchFragment_to_loginFragment)
+            controller?.navigate(R.id.action_searchFragment_to_login_nav)
         }
 
         menuHost.addMenuProvider(object : MenuProvider {
@@ -214,7 +210,7 @@ class SearchFragment: Fragment() {
         binding.searchRecyclerView.adapter = adapter
         adapter?.onItemClick = { item ->
             weatherViewModel.getWeather(item, false)
-
+            weatherViewModel.clearCity()
             controller?.navigateUp()
         }
     }
@@ -226,7 +222,7 @@ class SearchFragment: Fragment() {
         binding.searchRecyclerView.adapter = adapter
         adapter?.onItemClick = { item ->
             weatherViewModel.getWeather(item, false)
-
+            weatherViewModel.clearCity()
             controller?.navigateUp()
 
             Log.e("TAG", item)

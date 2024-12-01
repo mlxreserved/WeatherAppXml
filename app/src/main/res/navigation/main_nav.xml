@@ -26,8 +26,8 @@
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" >
         <action
-            android:id="@+id/action_settingsFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            android:id="@+id/action_settingsFragment_to_login_nav"
+            app:destination="@id/login_nav" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
@@ -35,26 +35,13 @@
         android:label="fragment_search"
         tools:layout="@layout/fragment_search" >
         <action
-            android:id="@+id/action_searchFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            android:id="@+id/action_searchFragment_to_login_nav"
+            app:destination="@id/login_nav" />
     </fragment>
     <fragment
         android:id="@+id/forecastFragment"
         android:name="com.example.weatherappxml.ui.main.ForecastFragment"
         android:label="fragment_forecast"
         tools:layout="@layout/fragment_forecast" />
-    <fragment
-        android:id="@+id/loginFragment"
-        android:name="com.example.weatherappxml.ui.login.LoginFragment"
-        android:label="fragment_login"
-        tools:layout="@layout/fragment_login" >
-        <action
-            android:id="@+id/action_loginFragment_to_registrationFragment"
-            app:destination="@id/registrationFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/registrationFragment"
-        android:name="com.example.weatherappxml.ui.login.RegistrationFragment"
-        android:label="fragment_registration"
-        tools:layout="@layout/fragment_registration" />
+    <include app:graph="@navigation/login_nav" />
 </navigation>

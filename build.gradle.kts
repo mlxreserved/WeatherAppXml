@@ -4,4 +4,5 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android) apply false
     kotlin("plugin.serialization") version "1.9.0" apply false
     alias(libs.plugins.gms.google.services) apply false
+    alias(libs.plugins.android.library) apply false
 }

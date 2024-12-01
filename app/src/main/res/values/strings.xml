@@ -31,4 +31,5 @@
     <string name="error_pass">Password is required</string>
     <string name="error_pass_len">Password must be minimum 8 characters</string>
     <string name="error_conf_pass">Confirm password is required</string>
+    <string name="error_serv">Bad connection</string>
 </resources>

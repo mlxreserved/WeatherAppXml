@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error">You entered incorrect data</string>
+    <string name="error_reg">Passwords don\'t match</string>
+    <string name="error_login">E-mail is required</string>
+    <string name="error_email">This is not an e-mail</string>
+    <string name="error_pass">Password is required</string>
+    <string name="error_pass_len">Password must be minimum 8 characters</string>
+    <string name="error_conf_pass">Confirm password is required</string>
+    <string name="error_serv">Bad connection</string>
+    <string name="login">E-mail</string>
+    <string name="password">Password</string>
+    <string name="login_button">Sign in</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="sign_up">Sign up</string>
+</resources>

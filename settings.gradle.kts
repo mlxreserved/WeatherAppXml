@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "WeatherAppXml"
 include(":app")
- 
+include(":login")
+include(":auth")
